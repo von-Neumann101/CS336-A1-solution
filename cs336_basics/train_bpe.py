@@ -1,5 +1,5 @@
-import collections
 import regex as re
+from collections import Counter
 
 PAT = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
 
@@ -63,7 +63,7 @@ def train_bpe(
     else:
         segments = [text]
 
-    pretoken_counts = collections.Counter()
+    pretoken_counts = Counter()
 
     for segment in segments:
         for match in re.finditer(PAT, segment):
@@ -83,21 +83,15 @@ def train_bpe(
 
         vocab[len(vocab)] = best_pair[0] + best_pair[1]
 
-        new_pretoken_counts = collections.Counter()
+        new_pretoken_counts = Counter()
 
         for tokens, freq in pretoken_counts.items():
+            if best_pair[0] not in tokens:
+                new_pretoken_counts[tokens] += freq
+                continue
+
             new_pretoken_counts[merge_pair(tokens, best_pair)] += freq
 
         pretoken_counts = new_pretoken_counts
 
     return vocab, merges
-
-def pretokenize_chunk(task):
-    input_path, start, end, special_tokens = task
-    with open(input_path, "rb") as f:
-        f.seek(start)
-        chunk = f.read(end - start).decode(
-            "utf-8", errors="ignore"
-        )
-
-
