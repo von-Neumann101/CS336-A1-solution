@@ -40,7 +40,7 @@ class Tokenizer():
 
     def encode(self, text: str) -> list[int]:
         """文本编码为 token ID 列表"""
-        special_tokens = list(dict.fromkeys(special_tokens))
+        special_tokens = list(dict.fromkeys(self.special_tokens))
         
         for token in special_tokens:
             self.vocab[len(self.vocab)] = token.encode("utf-8")
@@ -49,7 +49,7 @@ class Tokenizer():
             pattern = "|".join(
                 re.escape(token)
                 for token in sorted(special_tokens, key=len, reverse=True)
-            )
+            ) + ")"
             segments = re.split(pattern, text)
         else:
             segments = [text]
@@ -61,10 +61,10 @@ class Tokenizer():
                 encoded = match.group().encode("utf-8")
                 tokens = tuple(bytes([b]) for b in encoded)
 
-            for merge in self.merges:
-                tokens = merge_pair(tokens, merge)
+                for merge in self.merges:
+                    tokens = merge_pair(tokens, merge)
 
-            tokens_id.extend(self.bytes_to_id[token] for token in tokens)
+                tokens_id.extend(self.bytes_to_id[token] for token in tokens)
 
         return tokens_id
 
