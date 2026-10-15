@@ -1,25 +1,38 @@
 from train_bpe import train_bpe
+import time
+import tracemalloc
+import pickle
 
-import os
+tracemalloc.start()
+start = time.perf_counter()
 
-data_dir = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "data"
+vocab, merges = train_bpe(
+    "data/TinyStoriesV2-GPT4-train.txt",
+    10000,
+    ["<|endoftext|>"]
 )
 
-# TinyStories
-train_path = os.path.join(data_dir, "TinyStoriesV2-GPT4-train.txt")
-valid_path = os.path.join(data_dir, "TinyStoriesV2-GPT4-valid.txt")
+elapsed = time.perf_counter() - start
+current, peak = tracemalloc.get_traced_memory()
+tracemalloc.stop()
 
-# OpenWebText
-owt_train_path = os.path.join(data_dir, "owt_train.txt")
-owt_valid_path = os.path.join(data_dir, "owt_valid.txt")
+with open("data/tinystories_vocab.pkl", "wb") as f:
+    pickle.dump(vocab, f)
 
-special_tokens = ["<|endoftext|>"]
+with open("data/tinystories_merges.pkl", "wb") as f:
+    pickle.dump(merges, f)
 
-ts_vocab, _ = train_bpe(input_path= train_path,vocab_size=10000, special_tokens=special_tokens)
+normal_tokens = [
+    token for token in vocab.values()
+    if token != b"<|endoftext|>"
+]
 
-owt_vocab, _ = train_bpe(input_path= owt_train_path,vocab_size=32000, special_tokens=special_tokens)
+longest_token = max(normal_tokens, key=len)
 
-ts_compression_ratio = len(text.encode("utf-8")) / len(tokenizer.encode(text))
-print()
+print(f"训练时间：{elapsed:.2f} 秒")
+print(f"Python 内存分配峰值：{peak / 1024**2:.2f} MiB")
+print(f"词表大小：{len(vocab)}")
+print(f"合并次数：{len(merges)}")
+print(f"最长 Token：{longest_token!r}")
+print(f"最长 Token 字节数：{len(longest_token)}")
+print(f"解码结果：{longest_token.decode('utf-8', errors='replace')}")
