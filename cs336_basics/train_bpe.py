@@ -9,7 +9,7 @@ def count_pairs(
     dict[tuple[bytes, bytes], int],
     dict[tuple[bytes, bytes], set[tuple[bytes, ...]]]
 ]:
-    """统计所有相邻 Token 对的加权出现频率。"""
+    """统计所有相邻 Token 对的加权出现频率以及这个 pair 在的 pretoken。"""
     pair_counts = Counter()
     pair_to_pretokens = defaultdict(set)
 
