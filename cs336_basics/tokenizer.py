@@ -15,7 +15,7 @@ class Tokenizer():
                  ):
         self.vocab = vocab
         self.merges = merges
-        self.special_tokens = special_tokens if special_tokens is not None else []
+        self.special_tokens = special_tokens or []
         self.bytes_to_id = {
             token: token_id
             for token_id, token in self.vocab.items()
@@ -46,10 +46,11 @@ class Tokenizer():
             self.vocab[len(self.vocab)] = token.encode("utf-8")
 
         if special_tokens:
-            pattern = "|".join(
+            pattern = "(" + "|".join(
                 re.escape(token)
-                for token in sorted(special_tokens, key=len, reverse=True)
+                for token in sorted(self.special_tokens, key=len, reverse=True)
             ) + ")"
+
             segments = re.split(pattern, text)
         else:
             segments = [text]
@@ -57,6 +58,10 @@ class Tokenizer():
         tokens_id = []
 
         for segment in segments:
+            if segment in self.special_tokens:
+                tokens_id.append(self.bytes_to_id[segment.encode("utf-8")])
+                continue
+
             for match in re.finditer(PAT, segment):
                 encoded = match.group().encode("utf-8")
                 tokens = tuple(bytes([b]) for b in encoded)
