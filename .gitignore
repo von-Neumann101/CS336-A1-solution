@@ -167,3 +167,8 @@ data/TinyStoriesV2-GPT4-train.txt
 data/TinyStoriesV2-GPT4-valid.txt
 data/owt_valid.txt
 .vscode/settings.json
+data/tinystories_merges.pkl
+.gitignore
+data/tinystories_vocab.pkl
+.gitignore
+cs336_basics/some_trials.py
