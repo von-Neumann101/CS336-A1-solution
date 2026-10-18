@@ -25,7 +25,7 @@ class Linear(torch.nn.Module):
             std=sigma,
             a=-3 * sigma,
             b=3 * sigma
-)
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         output = einsum(
