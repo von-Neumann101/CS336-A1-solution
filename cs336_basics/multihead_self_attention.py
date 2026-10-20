@@ -19,6 +19,8 @@ class MultiheadSelfAttention(torch.nn.Module):
         self.dtype = dtype
         self.theta = theta
         self.max_seq_len = max_seq_len
+        
+        # d_k/v 指的是每一个头的 KV长度
         self.d_k = d_model // num_heads
         self.d_v = d_model // num_heads
 
