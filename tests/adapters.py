@@ -4,6 +4,7 @@ import os
 from collections.abc import Iterable
 from typing import IO, Any, BinaryIO
 
+from einops import rearrange
 import numpy.typing as npt
 import torch
 from jaxtyping import Bool, Float, Int
@@ -161,11 +162,14 @@ def run_multihead_self_attention(
     """
     mha = MultiheadSelfAttention(d_model=d_model, 
                                  num_heads=num_heads)
+    W_qkv = rearrange(
+        [q_proj_weight, k_proj_weight, v_proj_weight],
+        "three d_out d_in -> (three d_out) d_in",
+        three=3
+    )
 
     mha.load_state_dict({
-        "W_q.weight": q_proj_weight,
-        "W_k.weight": k_proj_weight,
-        "W_v.weight": v_proj_weight,
+        "W_qkv.weight": W_qkv,
         "W_o.weight": o_proj_weight,
     })
 
@@ -214,10 +218,14 @@ def run_multihead_self_attention_with_rope(
                                  max_seq_len=max_seq_len,
                                  theta=theta)
 
+    W_qkv = rearrange(
+            [q_proj_weight, k_proj_weight, v_proj_weight],
+            "three d_out d_in -> (three d_out) d_in",
+            three=3
+        )
+    
     mha.load_state_dict({
-        "W_q.weight": q_proj_weight,
-        "W_k.weight": k_proj_weight,
-        "W_v.weight": v_proj_weight,
+        "W_qkv.weight": W_qkv,
         "W_o.weight": o_proj_weight,
     })
 

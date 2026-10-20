@@ -19,30 +19,28 @@ class MultiheadSelfAttention(torch.nn.Module):
         self.dtype = dtype
         self.theta = theta
         self.max_seq_len = max_seq_len
-        d_k = d_model // num_heads
-        d_v = d_model // num_heads
+        self.d_k = d_model // num_heads
+        self.d_v = d_model // num_heads
 
         self.rope = None
         if max_seq_len is not None:
             self.rope = RotaryPositionalEmbedding(self.theta, 
-                                                d_k, 
+                                                self.d_k, 
                                                 self.d_model,
                                                 self.device)
 
-        self.W_q = Linear(d_model, num_heads * d_k, device, dtype)
+        self.W_qkv = Linear(d_model, num_heads * (2 * self.d_k + self.d_v), device, dtype)
         
-        self.W_k = Linear(d_model, num_heads * d_k, device, dtype)
-        
-        self.W_v = Linear(d_model, num_heads * d_v, device, dtype)
-        
-        self.W_o = Linear(num_heads * d_v, d_model, device, dtype)
+        self.W_o = Linear(num_heads * self.d_v, d_model, device, dtype)
 
     def forward(self, x: torch.Tensor, token_positions: torch.Tensor | None = None) -> torch.Tensor:
         """
         Args:
             x: 形状为(..., d_model)
         """
-        Q, K, V = self.W_q.forward(x), self.W_k.forward(x), self.W_v.forward(x)
+        Q, K, V = torch.split(self.W_qkv.forward(x), 
+                              [self.d_k * self.num_heads, self.d_k * self.num_heads, self.d_v * self.num_heads], 
+                              dim=-1)
 
         # 注意力头
         Qn = rearrange(
