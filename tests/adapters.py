@@ -20,6 +20,7 @@ from cs336_basics.swiglu import SwiGLU
 from cs336_basics.tokenizer import Tokenizer
 from cs336_basics.train_bpe import train_bpe
 from cs336_basics.transformer_block import TransformerBlock
+from cs336_basics.transformer_lm import TransformerLM
 
 def run_linear(
     d_in: int,
@@ -436,7 +437,72 @@ def run_transformer_lm(
         Float[Tensor, "batch_size sequence_length vocab_size"]: Tensor with the predicted unnormalized
         next-word distribution for each token.
     """
-    raise NotImplementedError
+    model = TransformerLM(
+        vocab_size=vocab_size,
+        context_length=context_length,
+        d_model=d_model,
+        num_layers=num_layers,
+        num_heads=num_heads,
+        d_ff=d_ff,
+        theta=rope_theta,
+        device=in_indices.device,
+        dtype=weights["token_embeddings.weight"].dtype,
+    )
+
+    with torch.no_grad():
+        # Token Embedding
+        next(model.emb.parameters()).copy_(
+            weights["token_embeddings.weight"]
+        )
+
+        # Transformer Blocks
+        for i, block in enumerate(model.layers):
+            prefix = f"layers.{i}"
+
+            # QKV 合并权重
+            q = weights[f"{prefix}.attn.q_proj.weight"]
+            k = weights[f"{prefix}.attn.k_proj.weight"]
+            v = weights[f"{prefix}.attn.v_proj.weight"]
+
+            block.mha.W_qkv.weight.copy_(
+                torch.cat([q, k, v], dim=0)
+            )
+
+            # Attention 输出投影
+            block.mha.W_o.weight.copy_(
+                weights[f"{prefix}.attn.output_proj.weight"]
+            )
+
+            # 两个 RMSNorm
+            block.mha_RMS.g.copy_(
+                weights[f"{prefix}.ln1.weight"]
+            )
+            block.ffn_RMS.g.copy_(
+                weights[f"{prefix}.ln2.weight"]
+            )
+
+            # SwiGLU
+            block.ffn.linear1.weight.copy_(
+                weights[f"{prefix}.ffn.w1.weight"]
+            )
+            block.ffn.linear2.weight.copy_(
+                weights[f"{prefix}.ffn.w2.weight"]
+            )
+            block.ffn.linear3.weight.copy_(
+                weights[f"{prefix}.ffn.w3.weight"]
+            )
+
+        # Final RMSNorm
+        model.rms.g.copy_(
+            weights["ln_final.weight"]
+        )
+
+        # LM Head
+        model.linear.weight.copy_(
+            weights["lm_head.weight"]
+        )
+
+    return model(in_indices)    
 
 
 def run_rmsnorm(
