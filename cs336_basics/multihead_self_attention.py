@@ -21,15 +21,17 @@ class MultiheadSelfAttention(torch.nn.Module):
         self.max_seq_len = max_seq_len
         
         # d_k/v 指的是每一个头的 KV长度
+        if d_model % num_heads != 0:
+            raise ValueError("d_model无法整除num_heads")
         self.d_k = d_model // num_heads
         self.d_v = d_model // num_heads
 
         self.rope = None
         if max_seq_len is not None:
             self.rope = RotaryPositionalEmbedding(self.theta, 
-                                                self.d_k, 
-                                                self.d_model,
-                                                self.device)
+                                                  self.d_k, 
+                                                  max_seq_len,
+                                                  self.device)
 
         self.W_qkv = Linear(d_model, num_heads * (2 * self.d_k + self.d_v), device, dtype)
         
