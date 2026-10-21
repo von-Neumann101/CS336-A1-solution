@@ -19,6 +19,7 @@ from cs336_basics.softmax import softmax
 from cs336_basics.swiglu import SwiGLU
 from cs336_basics.tokenizer import Tokenizer
 from cs336_basics.train_bpe import train_bpe
+from cs336_basics.transformer_block import TransformerBlock
 
 def run_linear(
     d_in: int,
@@ -324,7 +325,36 @@ def run_transformer_block(
         Float[Tensor, "batch sequence_length d_model"] Tensor with the output of
         running the Transformer block on the input features while using RoPE.
     """
-    raise NotImplementedError
+    block = TransformerBlock(
+        d_model=d_model,
+        num_heads=num_heads,
+        d_ff=d_ff,
+        eps=1e-5,
+        theta=theta,
+        max_seq_len=max_seq_len,
+        device=in_features.device,
+        dtype=in_features.dtype,
+    )
+
+    qkv_weight = torch.cat([
+        weights["attn.q_proj.weight"],
+        weights["attn.k_proj.weight"],
+        weights["attn.v_proj.weight"],
+    ], dim=0)
+
+    block.load_state_dict({
+        "mha.W_qkv.weight": qkv_weight,
+        "mha.W_o.weight": weights["attn.output_proj.weight"],
+
+        "mha_RMS.g": weights["ln1.weight"],
+        "ffn_RMS.g": weights["ln2.weight"],
+
+        "ffn.linear1.weight": weights["ffn.w1.weight"],
+        "ffn.linear2.weight": weights["ffn.w2.weight"],
+        "ffn.linear3.weight": weights["ffn.w3.weight"],
+    })
+
+    return block.forward(in_features)
 
 
 def run_transformer_lm(
