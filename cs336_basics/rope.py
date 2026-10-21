@@ -40,8 +40,7 @@ class RotaryPositionalEmbedding(torch.nn.Module):
         # 先广播，这样可以使得内存占用少 h 倍
         token_positions = rearrange(
             token_positions,
-            "... seq -> ... h seq",
-            h=1
+            "... seq -> ... 1 seq",
         )
 
         cos = self.cos[token_positions]
