@@ -14,18 +14,21 @@ class RotaryPositionalEmbedding(torch.nn.Module):
         self.max_seq_len = max_seq_len
         self.device = device
 
-        position = torch.arange(max_seq_len)
+        position = torch.arange(max_seq_len, device=device)
         j = torch.arange(0, d_k // 2, device=device)
         frequency = theta ** (-2 * j / d_k)
 
+        angle = einsum(
+                    position,
+                    frequency,
+                    "pos, pair -> pos pair"
+                )
 
-        self.register_buffer("angle", 
-                             einsum(
-                                position,
-                                frequency,
-                                "pos, pair -> pos pair"
-                             ),
-                             persistent=False)
+        sin = torch.sin(angle) # i, j
+        cos = torch.cos(angle)
+
+        self.register_buffer("sin", sin, persistent=False)
+        self.register_buffer("cos", cos, persistent=False)
 
     def forward(self, x: torch.Tensor, token_positions: torch.Tensor) -> torch.Tensor:
         x = rearrange(
@@ -34,31 +37,34 @@ class RotaryPositionalEmbedding(torch.nn.Module):
             two=2
         )
 
-        angle = self.angle[token_positions]
-        
-        sin = torch.sin(angle) # i, j
-        cos = torch.cos(angle)
-
-        R1 = rearrange(
-            [cos, -sin],
-            "two ... seq pos -> ... seq pos two"
+        # 先广播，这样可以使得内存占用少 h 倍
+        token_positions = rearrange(
+            token_positions,
+            "... seq -> ... h seq",
+            h=1
         )
 
-        R2 = rearrange(
-            [sin, cos],
-            "two ... seq pos -> ... seq pos two"
-        )
+        cos = self.cos[token_positions]
+        sin = self.sin[token_positions]
 
         raw1 = einsum(
-            x,
-            R1,
-            "... seq pos two, ... seq pos two -> ... seq pos"
-        ) 
-        
+            x[..., 0],
+            cos,
+            "... seq pos, ... seq pos -> ... seq pos"
+        ) + einsum(
+            x[..., 1],
+            -sin,
+            "... seq pos, ... seq pos -> ... seq pos"
+        )
+
         raw2 = einsum(
-            x,
-            R2,
-            "... seq pos two, ... seq pos two -> ... seq pos"
+            x[..., 0],
+            sin,
+            "... seq pos, ... seq pos -> ... seq pos"
+        ) + einsum(
+            x[..., 1],
+            cos,
+            "... seq pos, ... seq pos -> ... seq pos"
         )
 
         raw = rearrange(
