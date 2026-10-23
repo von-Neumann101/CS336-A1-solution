@@ -9,18 +9,18 @@ import numpy.typing as npt
 import torch
 from jaxtyping import Bool, Float, Int
 from torch import Tensor
-from cs336_basics.embedding import Embedding
-from cs336_basics.linear import Linear
-from cs336_basics.multihead_self_attention import MultiheadSelfAttention
-from cs336_basics.rms_norm import RMSNorm
-from cs336_basics.rope import RotaryPositionalEmbedding
-from cs336_basics.scaled_dot_product_attention import scaled_dot_product_attention
-from cs336_basics.softmax import softmax
-from cs336_basics.swiglu import SwiGLU
-from cs336_basics.tokenizer import Tokenizer
-from cs336_basics.train_bpe import train_bpe
-from cs336_basics.transformer_block import TransformerBlock
-from cs336_basics.transformer_lm import TransformerLM
+from cs336_basics.Model.embedding import Embedding
+from cs336_basics.Model.linear import Linear
+from cs336_basics.Model.multihead_self_attention import MultiheadSelfAttention
+from cs336_basics.Model.rms_norm import RMSNorm
+from cs336_basics.Model.rope import RotaryPositionalEmbedding
+from cs336_basics.Model.scaled_dot_product_attention import scaled_dot_product_attention
+from cs336_basics.Model.softmax import softmax
+from cs336_basics.Model.swiglu import SwiGLU
+from cs336_basics.Tokenizer.tokenizer import Tokenizer
+from cs336_basics.Tokenizer.train_bpe import train_bpe
+from cs336_basics.Model.transformer_block import TransformerBlock
+from cs336_basics.Model.transformer_lm import TransformerLM
 
 def run_linear(
     d_in: int,

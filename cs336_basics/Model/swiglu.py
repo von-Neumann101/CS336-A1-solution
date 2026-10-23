@@ -1,7 +1,7 @@
 from einops import einsum
 import torch
 
-from cs336_basics.linear import Linear
+from cs336_basics.Model.linear import Linear
 
 class SwiGLU(torch.nn.Module):
     def __init__(self,

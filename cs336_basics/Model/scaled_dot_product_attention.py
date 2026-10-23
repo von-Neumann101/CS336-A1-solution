@@ -3,7 +3,7 @@ import math
 from einops import einsum
 import torch
 
-from cs336_basics.softmax import softmax
+from cs336_basics.Model.softmax import softmax
 
 
 def scaled_dot_product_attention(

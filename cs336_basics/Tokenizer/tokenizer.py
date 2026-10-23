@@ -2,7 +2,7 @@ import pickle
 from collections.abc import Iterable, Iterator
 import regex as re
 
-from cs336_basics.train_bpe import merge_pair
+from cs336_basics.Tokenizer.train_bpe import merge_pair
 
 PAT = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
 

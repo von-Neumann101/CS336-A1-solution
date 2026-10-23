@@ -1,8 +1,8 @@
 import torch
 
-from cs336_basics.multihead_self_attention import MultiheadSelfAttention
-from cs336_basics.rms_norm import RMSNorm
-from cs336_basics.swiglu import SwiGLU
+from cs336_basics.Model.multihead_self_attention import MultiheadSelfAttention
+from cs336_basics.Model.rms_norm import RMSNorm
+from cs336_basics.Model.swiglu import SwiGLU
 
 class TransformerBlock(torch.nn.Module):
     def __init__(self, 

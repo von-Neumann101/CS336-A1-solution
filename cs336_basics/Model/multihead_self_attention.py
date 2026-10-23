@@ -1,8 +1,8 @@
 from einops import rearrange
 import torch
-from cs336_basics.linear import Linear
-from cs336_basics.rope import RotaryPositionalEmbedding
-from cs336_basics.scaled_dot_product_attention import scaled_dot_product_attention
+from cs336_basics.Model.linear import Linear
+from cs336_basics.Model.rope import RotaryPositionalEmbedding
+from cs336_basics.Model.scaled_dot_product_attention import scaled_dot_product_attention
 
 class MultiheadSelfAttention(torch.nn.Module):
     def __init__(self, 

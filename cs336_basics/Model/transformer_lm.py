@@ -1,10 +1,10 @@
 import torch
 from torch import nn
 
-from cs336_basics.embedding import Embedding
-from cs336_basics.linear import Linear
-from cs336_basics.rms_norm import RMSNorm
-from cs336_basics.transformer_block import TransformerBlock
+from cs336_basics.Model.embedding import Embedding
+from cs336_basics.Model.linear import Linear
+from cs336_basics.Model.rms_norm import RMSNorm
+from cs336_basics.Model.transformer_block import TransformerBlock
 
 class TransformerLM(torch.nn.Module):
     def __init__(self, 

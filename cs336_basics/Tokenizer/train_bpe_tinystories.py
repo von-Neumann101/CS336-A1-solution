@@ -1,4 +1,4 @@
-from train_bpe import train_bpe
+from cs336_basics.Tokenizer.train_bpe import train_bpe
 import time
 import tracemalloc
 import pickle
