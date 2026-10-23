@@ -473,7 +473,7 @@ def run_transformer_lm(
                 weights[f"{prefix}.attn.output_proj.weight"]
             )
 
-            # 两个 RMSNorm
+            # 两个 RMSNorm   
             block.mha_RMS.g.copy_(
                 weights[f"{prefix}.ln1.weight"]
             )
