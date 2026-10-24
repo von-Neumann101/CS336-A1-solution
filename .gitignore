@@ -173,3 +173,4 @@ data/tinystories_vocab.pkl
 .gitignore
 cs336_basics/some_trials.py
 cs336_basics/Training/demo.py
+/audit_artifacts/
