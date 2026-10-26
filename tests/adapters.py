@@ -23,7 +23,7 @@ from cs336_basics.Model.transformer_block import TransformerBlock
 from cs336_basics.Model.transformer_lm import TransformerLM
 from cs336_basics.Training.adamw import AdamW
 from cs336_basics.Training.cross_entropy import cross_entropy
-from cs336_basics.Training.gradient_clipping import gradient_clipping
+from cs336_basics.Training_Loop.gradient_clipping import gradient_clipping
 from cs336_basics.Training.lr_cosine_schedule import lr_cosine_schedule
 from cs336_basics.Training_Loop.checkpoint import load_checkpoint, save_checkpoint
 from cs336_basics.Training_Loop.get_batch import get_batch
