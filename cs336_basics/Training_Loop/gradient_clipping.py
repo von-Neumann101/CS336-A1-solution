@@ -24,6 +24,5 @@ def gradient_clipping(
 
     if l2_norm >= max_l2_norm:
         torch._foreach_mul_(grad_list, max_l2_norm / (l2_norm + eps))
-    
-    return grad_list
+
         
