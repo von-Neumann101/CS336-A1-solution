@@ -175,7 +175,7 @@ def main():
 
     for step in range(start_step, args.max_steps):
         train_loss = train_one_step(
-            model, optimizer, train_data, args, device, step
+            model, optimizer, train_data, args, device
         )
 
         iteration = step + 1  # 已经完成的优化器更新次数
