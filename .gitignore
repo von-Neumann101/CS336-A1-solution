@@ -174,3 +174,5 @@ data/tinystories_vocab.pkl
 cs336_basics/some_trials.py
 cs336_basics/Training/demo.py
 /audit_artifacts/
+data/tinystories_train.bin
+data/tinystories_valid.bin
